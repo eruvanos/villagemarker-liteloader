@@ -1,20 +1,22 @@
 package KaboVillageMarker;
 
+import net.minecraft.util.math.BlockPos;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.util.BlockPos;
-
 public class KaboVillageMarkerClient {
 
     public static KaboVillageMarkerClient instance = new KaboVillageMarkerClient();
-    private List[] villages = new List[]{new ArrayList(), new ArrayList(), new ArrayList()};
-    private ArrayList[] bufferedStringsByDimension = new ArrayList[]{new ArrayList(), new ArrayList(), new ArrayList()};
+    @SuppressWarnings("unchecked")
+    private List<KaboVillageMarkerClient.KaboVillageMarkerVillage>[] villages = (List<KaboVillageMarkerClient.KaboVillageMarkerVillage>[]) new ArrayList[]{new ArrayList<KaboVillageMarkerClient.KaboVillageMarkerVillage>(), new ArrayList<KaboVillageMarkerClient.KaboVillageMarkerVillage>(), new ArrayList<KaboVillageMarkerClient.KaboVillageMarkerVillage>()};
+    @SuppressWarnings("unchecked")
+    private List<String>[] bufferedStringsByDimension = (List<String>[]) new ArrayList[]{new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>()};
     private int[] currentIDByDimension = new int[]{1000, 1000, 1000};
 
 
-    public List getVillageListForDimension(int dimension) {
+    public List<KaboVillageMarkerClient.KaboVillageMarkerVillage> getVillageListForDimension(int dimension) {
         return this.villages[this.dimensionToIndex(dimension)];
     }
 
@@ -33,20 +35,17 @@ public class KaboVillageMarkerClient {
             this.bufferedStringsByDimension[this.dimensionToIndex(dim)].clear();
 
             for (int toTranslator = 0; toTranslator < size; ++toTranslator) {
-                this.bufferedStringsByDimension[this.dimensionToIndex(dim)].add((Object)null);
+                this.bufferedStringsByDimension[this.dimensionToIndex(dim)].add(null);
             }
 
             this.bufferedStringsByDimension[this.dimensionToIndex(dim)].set(part - 1, data);
         }
 
-        Iterator var11 = this.bufferedStringsByDimension[this.dimensionToIndex(dim)].iterator();
-
-        while (var11.hasNext()) {
-            Object i$ = var11.next();
-            if (i$ == null) {
-                notComplete = true;
-            }
+        for(String s : this.bufferedStringsByDimension[this.dimensionToIndex(dim)]) {
+            if(s == null) notComplete = true;
         }
+
+
 
         if (!notComplete) {
             String var13 = "";
@@ -63,7 +62,7 @@ public class KaboVillageMarkerClient {
 
     public void translateStringToVillageData(String dataString) {
         String[] villageStrings = dataString.split(":");
-        ArrayList translatedVillages = new ArrayList();
+        List<KaboVillageMarkerClient.KaboVillageMarkerVillage> translatedVillages = new ArrayList<KaboVillageMarkerClient.KaboVillageMarkerVillage>();
         int dimension = Integer.parseInt(villageStrings[0]);
 
         for (int i = 1; i < villageStrings.length; ++i) {
@@ -98,7 +97,7 @@ public class KaboVillageMarkerClient {
         public int x;
         public int y;
         public int z;
-        public List<KaboVillageMarkerClient.KaboVillageMarkerVillageDoorPosition> villageDoors = new ArrayList();
+        public List<KaboVillageMarkerClient.KaboVillageMarkerVillageDoorPosition> villageDoors = new ArrayList<KaboVillageMarkerClient.KaboVillageMarkerVillageDoorPosition>();
 
 
         public void clearDoorPositions() {

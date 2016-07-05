@@ -1,45 +1,22 @@
 package KaboVillageMarker.settings;
 
-import com.google.gson.Gson;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.util.MathHelper;
-import org.apache.commons.lang3.ArrayUtils;
+import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 public class KaboModSettings {
 
     public static KaboModSettings instance = new KaboModSettings(Minecraft.getMinecraft(), (File) null);
     private static final Logger logger = LogManager.getLogger();
-    private static final Gson gson = new Gson();
-    private static final ParameterizedType typeListString = new ParameterizedType() {
-        public Type[] getActualTypeArguments() {
-            return new Type[]{String.class};
-        }
-
-        public Type getRawType() {
-            return List.class;
-        }
-
-        public Type getOwnerType() {
-            return null;
-        }
-    };
     public static final String[] KVM_DOTSIZE = new String[]{"Small", "Medium", "Large"};
     public boolean drawGolemArea = true;
     public boolean drawSphere = true;
@@ -47,8 +24,6 @@ public class KaboModSettings {
     public float sphereDensity = 0.22535211F;
     public int dotSize = 0;
     public boolean debug = false;
-    public KeyBinding[] keyBindsHotbar = new KeyBinding[0];
-    public KeyBinding[] keyBindings = (KeyBinding[]) ((KeyBinding[]) ArrayUtils.addAll(new KeyBinding[0], new KeyBinding[0]));
     protected Minecraft mc;
     private File optionsFile;
 
@@ -57,22 +32,6 @@ public class KaboModSettings {
         this.mc = par1Minecraft;
         this.optionsFile = new File(par2File == null ? par1Minecraft.mcDataDir : par2File, "kaboModOptions.txt");
         this.loadOptions();
-    }
-
-    public KaboModSettings() {
-    }
-
-    public static String getKeyDisplayString(int par0) {
-        return par0 < 0 ? I18n.format("key.mouseButton", new Object[]{Integer.valueOf(par0 + 101)}) : Keyboard.getKeyName(par0);
-    }
-
-    public static boolean isKeyDown(KeyBinding par0KeyBinding) {
-        return par0KeyBinding.getKeyCode() == 0 ? false : (par0KeyBinding.getKeyCode() < 0 ? Mouse.isButtonDown(par0KeyBinding.getKeyCode() + 100) : Keyboard.isKeyDown(par0KeyBinding.getKeyCode()));
-    }
-
-    public void setKeyCodeSave(KeyBinding p_151440_1_, int p_151440_2_) {
-        p_151440_1_.setKeyCode(p_151440_2_);
-        this.saveOptions();
     }
 
     public void setOptionFloatValue(KaboModSettings.Options par1EnumOptions, float par2) {
@@ -108,25 +67,12 @@ public class KaboModSettings {
 
     public boolean getOptionOrdinalValue(KaboModSettings.Options par1EnumOptions) {
         switch (KaboModSettings.SwitchOptions.optionIds[par1EnumOptions.ordinal()]) {
-            case 1:
-                return this.drawVillages;
-            case 2:
-                return this.drawGolemArea;
-            case 3:
-                return this.drawSphere;
-            case 5:
-                return this.debug;
-            default:
-                return false;
+            case 1:  return this.drawVillages;
+            case 2:  return this.drawGolemArea;
+            case 3:  return this.drawSphere;
+            case 5:  return this.debug;
+            default: return false;
         }
-    }
-
-    private static String getTranslation(String[] par0ArrayOfStr, int par1) {
-        if (par1 < 0 || par1 >= par0ArrayOfStr.length) {
-            par1 = 0;
-        }
-
-        return I18n.format(par0ArrayOfStr[par1], new Object[0]);
     }
 
     public String getKeyBinding(KaboModSettings.Options par1EnumOptions) {
@@ -182,16 +128,6 @@ public class KaboModSettings {
                     if (var8[0].equals("VillageMarker-Debug")) {
                         this.debug = Boolean.parseBoolean(var8[1]);
                     }
-
-                    KeyBinding[] var4 = this.keyBindings;
-                    int var5 = var4.length;
-
-                    for (int var6 = 0; var6 < var5; ++var6) {
-                        KeyBinding var7 = var4[var6];
-                        if (var8[0].equals("key_" + var7.getKeyDescription())) {
-                            var7.setKeyCode(Integer.parseInt(var8[1]));
-                        }
-                    }
                 } catch (Exception var81) {
                     logger.warn("Skipping bad option: " + var2);
                 }
@@ -218,28 +154,10 @@ public class KaboModSettings {
             var6.println("VillageMarker-SphereDensity:" + this.sphereDensity);
             var6.println("VillageMarker-DotSize:" + this.dotSize);
             var6.println("VillageMarker-Debug:" + this.debug);
-
-            KeyBinding[] var2 = this.keyBindings;
-            int var3 = var2.length;
-
-            for (int var4 = 0; var4 < var3; ++var4) {
-                KeyBinding var5 = var2[var4];
-                var6.println("key_" + var5.getKeyDescription() + ":" + var5.getKeyCode());
-            }
-
             var6.close();
         } catch (Exception var61) {
             logger.error("Failed to save options", var61);
         }
-
-        this.sendSettingsToServer();
-    }
-
-    public void sendSettingsToServer() {
-        if (this.mc.thePlayer != null) {
-            ;
-        }
-
     }
 
 
@@ -249,41 +167,21 @@ public class KaboModSettings {
 
 
         static {
-            try {
                 optionIds[KaboModSettings.Options.KVM_DRAW_VILLAGES.ordinal()] = 1;
-            } catch (NoSuchFieldError var3) {
-                ;
-            }
-
-            try {
                 optionIds[KaboModSettings.Options.KVM_DRAW_GOLEM_AREA.ordinal()] = 2;
-            } catch (NoSuchFieldError var2) {
-                ;
-            }
-
-            try {
                 optionIds[KaboModSettings.Options.KVM_DRAW_VILLAGESPHERE.ordinal()] = 3;
-            } catch (NoSuchFieldError var1) {
-                ;
-            }
-
-            try {
                 optionIds[KaboModSettings.Options.KVM_DEBUG.ordinal()] = 5;
-            } catch (NoSuchFieldError var1) {
-                ;
-            }
-
         }
     }
 
     public enum Options {
 
-        KVM_DRAW_VILLAGES("KVM_DRAW_VILLAGES", 0, "DRAW_VILLAGES", 0, "Draw Villages", false, true),
-        KVM_DRAW_GOLEM_AREA("KVM_DRAW_GOLEM_AREA", 1, "DRAW_GOLEM_AREA", 1, "Draw Golem Spawn Area", false, true),
-        KVM_VILLAGE_SPHERE_DENSITY("KVM_VILLAGE_SPHERE_DENSITY", 2, "VILLAGE_SPHERE_DENSITY", 2, "Sphere Density", true, false),
-        KVM_DRAW_VILLAGESPHERE("KVM_DRAW_VILLAGESPHERE", 3, "DRAW_VILLAGESPHERE", 3, "Draw Dots", false, true),
-        KVM_DOTSIZE("KVM_DOTSIZE", 4, "DOT_SIZE", 16, "Dot Size", false, false),
-        KVM_DEBUG("KVM_DEBUG", 5, "DEBUG", 16, "Debug mode", false, true);
+        KVM_DRAW_VILLAGES         ("KVM_DRAW_VILLAGES",          0, "DRAW_VILLAGES",          0, "Draw Villages",         false, true),
+        KVM_DRAW_GOLEM_AREA       ("KVM_DRAW_GOLEM_AREA",        1, "DRAW_GOLEM_AREA",        1, "Draw Golem Spawn Area", false, true),
+        KVM_VILLAGE_SPHERE_DENSITY("KVM_VILLAGE_SPHERE_DENSITY", 2, "VILLAGE_SPHERE_DENSITY", 2, "Sphere Density",        true,  false),
+        KVM_DRAW_VILLAGESPHERE    ("KVM_DRAW_VILLAGESPHERE",     3, "DRAW_VILLAGESPHERE",     3, "Draw Dots",             false, true),
+        KVM_DOTSIZE               ("KVM_DOTSIZE",                4, "DOT_SIZE",              16, "Dot Size",              false, false),
+        KVM_DEBUG                 ("KVM_DEBUG",                  5, "DEBUG",                 16, "Debug mode",            false, true);
         private final boolean enumFloat;
         private final boolean enumBoolean;
         private final String enumString;

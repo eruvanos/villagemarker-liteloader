@@ -1,8 +1,0 @@
-{
-    "name": "KaboVillageMarker",
-    "mcversion": "${litemodversion}",
-    "version": "${version}",
-    "revision": "${build.number}",
-    "author": "${author}",
-    "description": "Modified KaboVillageMarker for 1.8+Liteloader\n\nWARNING: Very early and experimental version!"
-}

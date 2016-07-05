@@ -5,26 +5,28 @@ import KaboVillageMarker.settings.KaboModSettings;
 import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableList;
 import com.mojang.realmsclient.dto.RealmsServer;
-import com.mumfrey.liteloader.*;
+import com.mumfrey.liteloader.Configurable;
+import com.mumfrey.liteloader.InitCompleteListener;
+import com.mumfrey.liteloader.JoinGameListener;
+import com.mumfrey.liteloader.PluginChannelListener;
+import com.mumfrey.liteloader.PostRenderListener;
+import com.mumfrey.liteloader.Tickable;
 import com.mumfrey.liteloader.core.LiteLoader;
 import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import com.mumfrey.liteloader.util.log.LiteLoaderLogger;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.client.C17PacketCustomPayload;
-import net.minecraft.network.play.server.S01PacketJoinGame;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.network.play.client.CPacketCustomPayload;
+import net.minecraft.network.play.server.SPacketJoinGame;
+import net.minecraft.util.text.TextComponentString;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Logger;
-import org.lwjgl.input.Keyboard;
 
-import java.awt.*;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -36,7 +38,7 @@ import java.util.zip.GZIPInputStream;
 /**
  * @author guntherdw
  */
-public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameListener, Configurable, PluginChannelListener, PostRenderListener {
+public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameListener, Configurable, PluginChannelListener, PostRenderListener, Tickable {
 
     protected final String POLL_CHANNEL = "KVM|Poll";
     protected final String DATA_CHANNEL = "KVM|Data";
@@ -51,11 +53,6 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
     private static int checkTime = 0;
 
     protected static boolean fullbright = true;
-    // protected static boolean visibility = true;
-
-    /* protected KeyBinding markerToggle_vis = new KeyBinding("Toggle VillageMarker visibility", Keyboard.KEY_V, "VillageMarker");
-    protected KeyBinding markerToggle_fb  = new KeyBinding("Toggle VillageMarker fullbright", Keyboard.KEY_B, "VillageMarker");
-    protected KeyBinding markerToggle_reload  = new KeyBinding("Reload options", Keyboard.KEY_X, "VillageMarker"); */
 
     /**
      * Called when a custom payload packet arrives on a channel this mod has registered
@@ -74,8 +71,8 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
                 PacketBuffer buff = new PacketBuffer(Unpooled.buffer());
                 buff.writeBytes(bytes);
 
-                C17PacketCustomPayload var7 = new C17PacketCustomPayload(ANSWER_CHANNEL, buff);
-                Minecraft.getMinecraft().thePlayer.sendQueue.addToSendQueue(var7);
+                CPacketCustomPayload var7 = new CPacketCustomPayload(ANSWER_CHANNEL, buff);
+                Minecraft.getMinecraft().thePlayer.connection.sendPacket(var7);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -126,11 +123,11 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
      */
     @Override
     public List<String> getChannels() {
-        return Arrays.asList(new String[] {POLL_CHANNEL, DATA_CHANNEL, DATA_CHANNEL_COMPRESSED, ANSWER_CHANNEL});
+        return Arrays.asList(POLL_CHANNEL, DATA_CHANNEL, DATA_CHANNEL_COMPRESSED, ANSWER_CHANNEL);
     }
 
     private void addChat(Minecraft minecraft, String message) {
-        minecraft.ingameGUI.getChatGUI().printChatMessage(new ChatComponentText("[VillageMarker] §6" + message));
+        minecraft.ingameGUI.getChatGUI().printChatMessage(new TextComponentString("[VillageMarker] §6" + message));
     }
 
     /**
@@ -158,20 +155,6 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
                 checkTime--;
             }
         }
-
-        /* if(!minecraft.inGameHasFocus) return;
-        if(markerToggle_fb.isPressed()) {
-            fullbright = !fullbright;
-            addChat(minecraft, "Marker fullbright is now "+(fullbright?"on":"off")+"!");
-        }
-        if(markerToggle_vis.isPressed()) {
-            visibility = !visibility;
-            addChat(minecraft, "Marker visibility is now "+(visibility?"on":"off")+"!");
-        }
-        if (markerToggle_reload.isPressed()) {
-            addChat(minecraft, "Reloading VillageMarker settings file!");
-            KaboModSettings.instance.loadOptions();
-        } */
     }
 
     /**
@@ -195,9 +178,6 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
      */
     @Override
     public void init(File configPath) {
-        /* LiteLoader.getInput().registerKeyBinding(markerToggle_vis);
-        LiteLoader.getInput().registerKeyBinding(markerToggle_fb);
-        LiteLoader.getInput().registerKeyBinding(markerToggle_reload); */
     }
 
     /**
@@ -240,9 +220,7 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
      */
     @Override
     public void onPostRenderEntities(float partialTicks) {
-        EntityPlayerSP player = Minecraft.getMinecraft().thePlayer;
-
-        KaboVillageMarkerClientRenderer.renderVillageMarker(Tessellator.getInstance(), player, partialTicks);
+        KaboVillageMarkerClientRenderer.renderVillageMarker(Tessellator.getInstance(), Minecraft.getMinecraft().getRenderViewEntity(), partialTicks);
     }
 
     /**
@@ -264,7 +242,7 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
      * @param realmsServer   If connecting to a realm, a reference to the RealmsServer object
      */
     @Override
-    public void onJoinGame(INetHandler netHandler, S01PacketJoinGame joinGamePacket, ServerData serverData, RealmsServer realmsServer) {
+    public void onJoinGame(INetHandler netHandler, SPacketJoinGame joinGamePacket, ServerData serverData, RealmsServer realmsServer) {
 
         Logger log = LiteLoaderLogger.getLogger();
 

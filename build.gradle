@@ -1,0 +1,63 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            name = "sonatype"
+            url = "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+        maven {
+            name = 'sponge'
+            url = 'http://repo.spongepowered.org/maven'
+        }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'org.spongepowered:mixingradle:0.4-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.liteloader'
+apply plugin: 'org.spongepowered.mixin'
+
+version = "1.0"
+group = "KaboVillageMarker" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "KaboVillageMarker"
+
+minecraft {
+    version = "1.9.4"
+    mappings = "snapshot_20160518"
+    runDir = "run"
+}
+
+sourceSets {
+    main {
+        // Refmap declaration must match the refmap name specified in the json config
+        // refMap = "mixins.example.refmap.json"
+    }
+}
+
+
+mixin {
+    defaultObfuscationEnv notch
+}
+
+litemod {
+    json {
+        name = "KaboVillageMarker"
+        mcversion = "1.9.4"
+        version = "1.0"
+        author = "Tweakcraft.net"
+        description = "Modified KaboVillageMarker for 1.9.4+Liteloader\n\nWARNING: Very early and experimental version!"
+
+        // mixinConfigs += "mixins.example.json"
+    }
+}
+
+jar {
+    from litemod.outputs
+}
