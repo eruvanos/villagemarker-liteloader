@@ -24,12 +24,15 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.liteloader'
 apply plugin: 'org.spongepowered.mixin'
 
-version = "1.0"
+version = "1.2"
 group = "KaboVillageMarker" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "KaboVillageMarker"
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 minecraft {
-    version = "1.9.4"
+    version = "1.11"
     mappings = "snapshot_20160518"
     runDir = "run"
 }
@@ -49,10 +52,10 @@ mixin {
 litemod {
     json {
         name = "KaboVillageMarker"
-        mcversion = "1.9.4"
-        version = "1.0"
+        mcversion = "1.11"
+        version = "1.2"
         author = "Tweakcraft.net"
-        description = "Modified KaboVillageMarker for 1.9.4+Liteloader\n\nWARNING: Very early and experimental version!"
+        description = "Modified KaboVillageMarker for 1.11+Liteloader\n\nWARNING: Very early and experimental version!"
 
         // mixinConfigs += "mixins.example.json"
     }
@@ -61,3 +64,23 @@ litemod {
 jar {
     from litemod.outputs
 }
+
+processResources
+        {
+            // this will ensure that this task is redone when the versions change.
+            inputs.property "version", project.version
+            inputs.property "mcversion", project.minecraft.version
+
+            // replace stuff in mcmod.info, nothing else
+            from(sourceSets.main.resources.srcDirs) {
+                include 'mcmod.info'
+
+                // replace version and mcversion
+                expand 'version':project.version, 'mcversion':project.minecraft.version
+            }
+
+            // copy everything else, thats not the mcmod.info
+            from(sourceSets.main.resources.srcDirs) {
+                exclude 'mcmod.info'
+            }
+        }
