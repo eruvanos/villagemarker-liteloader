@@ -14,6 +14,7 @@ import com.mumfrey.liteloader.Tickable;
 import com.mumfrey.liteloader.core.LiteLoader;
 import com.mumfrey.liteloader.modconfig.ConfigPanel;
 import com.mumfrey.liteloader.util.log.LiteLoaderLogger;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
@@ -81,7 +82,15 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
                 // System.out.println("Recevied packet ("+channel+") : "+(new String(data.array())));
                 if (!hasReceivedUpdate) hasReceivedUpdate = true;
 
-                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data.array());
+
+                byte[] data_array;
+                if (data.hasArray()) {
+                    data_array = data.array();
+                } else {
+                    data_array = ByteBufUtil.getBytes(data);
+                }
+
+                ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data_array);
                 GZIPInputStream gzipInputStream = new GZIPInputStream(byteArrayInputStream);
                 InputStreamReader inputStreamReader = new InputStreamReader(gzipInputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
@@ -140,7 +149,7 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
      */
     @Override
     public void onTick(Minecraft minecraft, float partialTicks, boolean inGame, boolean clock) {
-        if(!inGame) return;
+        if (!inGame) return;
 
         if (clock && delayedCheck) {
             if (checkTime == 0) {
@@ -246,10 +255,10 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
 
         Logger log = LiteLoaderLogger.getLogger();
 
-        log.log(Level.INFO, "KVM|Poll enabled serverside? "+LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(POLL_CHANNEL));
-        log.log(Level.INFO, "KVM|Data enabled serverside? "+LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(DATA_CHANNEL));
-        log.log(Level.INFO, "KVM|DataComp enabled serverside? "+LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(DATA_CHANNEL_COMPRESSED));
-        log.log(Level.INFO, "KVM|Answer enabled serverside? "+LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(ANSWER_CHANNEL));
+        log.log(Level.INFO, "KVM|Poll enabled serverside? " + LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(POLL_CHANNEL));
+        log.log(Level.INFO, "KVM|Data enabled serverside? " + LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(DATA_CHANNEL));
+        log.log(Level.INFO, "KVM|DataComp enabled serverside? " + LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(DATA_CHANNEL_COMPRESSED));
+        log.log(Level.INFO, "KVM|Answer enabled serverside? " + LiteLoader.getClientPluginChannels().isRemoteChannelRegistered(ANSWER_CHANNEL));
 
         checkTime = DELAYED_CHECK_TICKS;
         delayedCheck = true;

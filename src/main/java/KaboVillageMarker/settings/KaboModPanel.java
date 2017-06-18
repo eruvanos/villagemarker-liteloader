@@ -128,7 +128,7 @@ public class KaboModPanel extends Gui implements ConfigPanel {
         this.drawString(this.mc.fontRendererObj, "Dot size",        24, 105, 0xFFFFFF);
 
         for (GuiButton control : this.controlList) {
-            control.drawButton(this.mc, mouseX, mouseY);
+            control.func_191745_a(this.mc, mouseX, mouseY, partialTicks);
         }
     }
 
