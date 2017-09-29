@@ -65,7 +65,7 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
     public void onCustomPayload(String channel, PacketBuffer data) {
         // System.out.println("Received "+data.array().length+" bytes on "+channel+"!");
         if (POLL_CHANNEL.equals(channel)) {
-            String uuidString = Minecraft.getMinecraft().thePlayer.getUniqueID().toString();
+            String uuidString = Minecraft.getMinecraft().player.getUniqueID().toString();
 
             try {
                 byte[] bytes = uuidString.getBytes(Charsets.UTF_8);
@@ -73,7 +73,7 @@ public class LiteModKaboVillageMarker implements InitCompleteListener, JoinGameL
                 buff.writeBytes(bytes);
 
                 CPacketCustomPayload var7 = new CPacketCustomPayload(ANSWER_CHANNEL, buff);
-                Minecraft.getMinecraft().thePlayer.connection.sendPacket(var7);
+                Minecraft.getMinecraft().player.connection.sendPacket(var7);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }

@@ -124,11 +124,11 @@ public class KaboModPanel extends Gui implements ConfigPanel {
     @Override
     public void drawPanel(ConfigPanelHost host, int mouseX, int mouseY, float partialTicks) {
 
-        this.drawString(this.mc.fontRendererObj, "Sphere density",  24, 80,  0xFFFFFF);
-        this.drawString(this.mc.fontRendererObj, "Dot size",        24, 105, 0xFFFFFF);
+        this.drawString(this.mc.fontRenderer, "Sphere density",  24, 80,  0xFFFFFF);
+        this.drawString(this.mc.fontRenderer, "Dot size",        24, 105, 0xFFFFFF);
 
         for (GuiButton control : this.controlList) {
-            control.func_191745_a(this.mc, mouseX, mouseY, partialTicks);
+            control.drawButton(this.mc, mouseX, mouseY, partialTicks);
         }
     }
 

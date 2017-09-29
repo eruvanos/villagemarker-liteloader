@@ -34,7 +34,7 @@ public class KaboVillageMarkerClientRenderer {
             if (KaboModSettings.instance.drawVillages) {
                 renderSpheresAndLines(tess, renderEntity, partialTicks);
             }
-        } else if (!KaboVillageMarkerClient.instance.getVillageListForDimension(mc.thePlayer.dimension).isEmpty() && KaboModSettings.instance.drawVillages) {
+        } else if (!KaboVillageMarkerClient.instance.getVillageListForDimension(mc.player.dimension).isEmpty() && KaboModSettings.instance.drawVillages) {
             renderSpheresAndLinesMP(tess, renderEntity, partialTicks);
         }
 
@@ -59,7 +59,7 @@ public class KaboVillageMarkerClientRenderer {
         BufferBuilder vb = tess.getBuffer();
 
         List<Village> villageList = mc.getIntegratedServer()
-                .worldServerForDimension(mc.thePlayer.dimension)
+                .getWorld(mc.player.dimension)
                 .getVillageCollection()
                 .getVillageList();
 
@@ -161,7 +161,7 @@ public class KaboVillageMarkerClientRenderer {
         int c = 0;
         BufferBuilder vb = tess.getBuffer();
 
-        for (KaboVillageMarkerClient.KaboVillageMarkerVillage village : KaboVillageMarkerClient.instance.getVillageListForDimension(mc.thePlayer.dimension)) {
+        for (KaboVillageMarkerClient.KaboVillageMarkerVillage village : KaboVillageMarkerClient.instance.getVillageListForDimension(mc.player.dimension)) {
             int vRad = village.radius;
             BlockPos vCen = village.getCenter();
             List vDoors = village.villageDoors;
